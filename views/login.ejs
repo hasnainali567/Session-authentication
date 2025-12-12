@@ -1,0 +1,36 @@
+<%- include('partials/header') %>
+
+    <body class="bg-light d-flex align-items-center justify-content-center" style="min-height:100vh;">
+        <div class="card shadow-lg p-4" style="width: 420px; border-radius: 18px;">
+            <h3 class="text-center mb-4 fw-bold text-primary">Welcome Back</h3>
+
+            <form action="/login" method="POST">
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Email</label>
+                    <input type="email" class="form-control form-control-lg" name="email"
+                        placeholder="example@gmail.com" />
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">Password</label>
+                    <input type="password" class="form-control form-control-lg" name="password"
+                        placeholder="Enter password" />
+                </div>
+
+                <button class="btn btn-primary btn-lg w-100">Login</button>
+
+                <p class="text-center mt-3">
+                    Don't have an account? <a href="/register">Register</a>
+                </p>
+                <% if (error) { %>
+                    <div class="alert alert-danger mt-3">
+                        <%= error %>
+                    </div>
+                    <% } %>
+
+            </form>
+        </div>
+    </body>
+
+    </html>
