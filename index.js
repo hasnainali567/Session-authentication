@@ -23,6 +23,28 @@ app.use(session({
     }),
 }))
 
+let isConnected = false;
+
+const connectDB = async () => {
+    if (isConnected) {
+        return;
+    }
+    try {
+        await mongoose.connect('mongodb+srv://hasnain:hasnain@cluster0.tmydcen.mongodb.net/?appName=Cluster0/sessionDB');
+        isConnected = true;
+        console.log('MongoDB connected');
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+app.use(async (req, res, next) => {
+    if (!isConnected) {
+        await connectDB();
+    }
+    next();
+});
+
 const csrfProtection = csurf({ cookie: false });
 
 const isAuthenticated = (req, res, next) => {
@@ -108,10 +130,12 @@ app.get('/logout', (req, res) => {
     });
 });
 
-connectDB()
-.then(()=> {
-    app.listen(3000, () => {
-        console.log('Server is running on port 3000');
+
+
+// connectDB()
+// .then(()=> {
+//     app.listen(3000, () => {
+//         console.log('Server is running on port 3000');
         
-    })
-});
+//     })
+// });
