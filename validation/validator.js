@@ -11,7 +11,8 @@ const registerSchema = joi.object({
     password: joi.string().min(6).required().messages({
         'string.min': 'Password must be at least 6 characters long',
         'string.empty': 'Password is required'
-    })
+    }),
+    _csrf : joi.string().optional()
 })
 
 const loginSchema = joi.object({
@@ -22,7 +23,8 @@ const loginSchema = joi.object({
     password: joi.string().min(6).required().messages({
         'string.min': 'Password must be at least 6 characters long',
         'string.empty': 'Password is required',
-    })
+    }),
+    _csrf: joi.string().optional()
 });
 
 export { registerSchema, loginSchema }

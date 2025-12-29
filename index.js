@@ -5,6 +5,9 @@ import { registerSchema, loginSchema } from './validation/validator.js';
 import bcrypt from 'bcrypt';
 import connectDB from './config/db.js';
 import User from './models/user.model.js'
+import csurf from 'csurf';
+
+
 
 const app = express();
 app.set('view engine', 'ejs');
@@ -19,6 +22,8 @@ app.use(session({
         collectionName: 'sessions'
     }),
 }))
+
+const csrfProtection = csurf({ cookie: false });
 
 const isAuthenticated = (req, res, next) => {
     if (req.session.user) {
@@ -36,14 +41,14 @@ app.get('/', (req, res) => {
     res.send("Welcome to the Home Page");
 });
 
-app.get('/register', (req, res) => {
+app.get('/register', csrfProtection, (req, res) => {
     if (req.session.user) {
         return res.redirect('/profile')
     }
-    res.render('register', { errors: null });
+    res.render('register', { errors: null, csrfToken: req.csrfToken() });
 });
 
-app.post('/register', async (req, res) => {
+app.post('/register', csrfProtection, async (req, res) => {
 
     try {
         await registerSchema.validateAsync(req.body);
@@ -54,20 +59,18 @@ app.post('/register', async (req, res) => {
         res.redirect('/profile');
     } catch (error) {
         console.log(error);
-        res.render('register', { errors: error.details[0]?.message });
+        res.render('register', { errors: error.details[0]?.message, csrfToken: req.csrfToken() });
     }
-
-
 });
 
-app.get('/login', (req, res) => {
+app.get('/login', csrfProtection, (req, res) => {
     if (req.session.user) {
         return res.redirect('/profile')
     }
-    res.render('login', { error: null });
+    res.render('login', { error: null, csrfToken: req.csrfToken() });
 });
 
-app.post('/login', async (req, res) => {
+app.post('/login', csrfProtection, async (req, res) => {
     try {
         await loginSchema.validateAsync(req.body);
         const { email, password } = req.body;
@@ -81,7 +84,7 @@ app.post('/login', async (req, res) => {
         res.redirect('/profile');
     } catch (error) {
         if (error.details) {
-            return res.render('login', { error: error.details[0].message })
+            return res.render('login', { error: error.details[0].message, csrfToken: req.csrfToken() });
         }
         res.status(500).send('Server error');
     }
@@ -105,7 +108,10 @@ app.get('/logout', (req, res) => {
     });
 });
 
-app.listen(3000, () => {
-    console.log("Server is running on port 3000");
-    connectDB();
+connectDB()
+.then(()=> {
+    app.listen(3000, () => {
+        console.log('Server is running on port 3000');
+        
+    })
 });
